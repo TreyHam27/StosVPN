@@ -23,8 +23,8 @@ jobs:
 
       - name: Fix Project Format
         run: |
-          sed -i '' 's/objectVersion = 77/objectVersion = 56/' StikJIT.xcodeproj/project.pbxproj
-          sed -i '' 's/preferredProjectObjectVersion = 77/preferredProjectObjectVersion = 56/' StikJIT.xcodeproj/project.pbxproj
+          sed -i '' 's/objectVersion = 77/objectVersion = 56/' StosVPN.xcodeproj/project.pbxproj
+          sed -i '' 's/preferredProjectObjectVersion = 77/preferredProjectObjectVersion = 56/' StosVPN.xcodeproj/project.pbxproj
 
       - name: List Available SDKs
         run: xcodebuild -showsdks
@@ -35,10 +35,10 @@ jobs:
       - name: Archive Build (Unsigned)
         run: |
           xcodebuild clean archive \
-            -project StikJIT.xcodeproj \
-            -scheme "StikJIT" \
+            -project StosVPN.xcodeproj \
+            -scheme "StosVPN" \
             -configuration Release \
-            -archivePath build/StikJit.xcarchive \
+            -archivePath build/StosVPN.xcarchive \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             ONLY_ACTIVE_ARCH=NO \
@@ -51,17 +51,17 @@ jobs:
       - name: Create IPA from Archive
         run: |
           # Copy the .app from the archive
-          cp -R build/StikJit.xcarchive/Products/Applications/StikJit.app .
+          cp -R build/StosVPN.xcarchive/Products/Applications/StosVPN.app .
 
           # Package the app into an IPA
           mkdir -p Payload
-          cp -R StikJit.app Payload/
-          zip -r StikJit.ipa Payload
-          rm -rf Payload StikJit.app
+          cp -R StosVPN.app Payload/
+          zip -r StosVPN.ipa Payload
+          rm -rf Payload StosVPN.app
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: StikJit.ipa
-          path: StikJit.ipa
+          name: StosVPN.ipa
+          path: StosVPN.ipa
           retention-days: 90 
