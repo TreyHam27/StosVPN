@@ -57,9 +57,7 @@ jobs:
 
             - name: Create IPA
               run: |
-                  cd Payload
-                  zip -r ../StosVPN-fakesigned.ipa Payload
-                  cd .. # Go back to the root directory
+                  zip -r ./StosVPN-fakesigned.ipa Payload
 
             - name: Upload IPA Artifact
               uses: actions/upload-artifact@v4
