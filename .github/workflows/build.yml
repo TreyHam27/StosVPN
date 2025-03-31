@@ -34,7 +34,7 @@ jobs:
               run: mkdir -p Payload
 
             - name: Copy App to Payload
-              run: cp -R build/StosVPN.xcarchive/Products/Applications/StosVPN.app Payload/
+              run: cp -R build/StosVPN.xcarchive/Products/Applications/StosVPN.app Payload/StosVPN.app
 
             - name: Find and Sign App Extension
               run: |
@@ -58,7 +58,7 @@ jobs:
             - name: Create IPA
               run: |
                   cd Payload
-                  zip -r ../StosVPN-fakesigned.ipa .
+                  zip -r ../StosVPN-fakesigned.ipa Payload
                   cd .. # Go back to the root directory
 
             - name: Upload IPA Artifact
