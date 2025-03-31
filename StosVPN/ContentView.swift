@@ -297,6 +297,7 @@ struct ContentView: View {
     @State private var showSettings = false
     @State var tunnel = false
     @AppStorage("autoConnect") private var autoConnect = false
+    @AppStorage("hasNotCompletedSetup") private var hasNotCompletedSetup = true
     
     var body: some View {
         NavigationStack {
@@ -335,9 +336,11 @@ struct ContentView: View {
                     tunnelManager.startVPN()
                 }
             }
-            
             .sheet(isPresented: $showSettings) {
                 SettingsView()
+            }
+            .sheet(isPresented: $hasNotCompletedSetup) {
+                SetupView()
             }
         }
     }
@@ -607,8 +610,8 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    NavigationLink(destination: PrivacyPolicyView()) {
-                        Text("Privacy Policy")
+                    Button("Privacy Policy") {
+                        UIApplication.shared.open(URL(string: "https://github.com/stossy11/PrivacyPolicy/blob/main/PrivacyPolicy.md")!)
                     }
                     
                     NavigationLink(destination: HelpView()) {
@@ -724,6 +727,151 @@ struct HelpView: View {
         }
         .navigationTitle("Help & Support")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct SetupView: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("hasNotCompletedSetup") private var hasNotCompletedSetup = true
+    @State private var currentPage = 0
+    
+    let pages = [
+        SetupPage(
+            title: "Welcome to StosVPN",
+            description: "A simple local network tunnel for everyone",
+            imageName: "checkmark.shield.fill",
+            details: "StosVPN creates a local network interface on your device that anyone can use for development, testing, and accessing local servers."
+        ),
+        SetupPage(
+            title: "Why Use StosVPN?",
+            description: "Perfect for developers and everyday users",
+            imageName: "person.2.fill",
+            details: "• Access local web servers and development environments\n• Test applications that require specific network configurations\n• Connect to local network services without complex setup\n• Create isolated network environments for testing"
+        ),
+        SetupPage(
+            title: "Easy to Use",
+            description: "Just one tap to connect",
+            imageName: "hand.tap.fill",
+            details: "StosVPN is designed to be simple and straightforward. Just tap the connect button to establish a local network tunnel with pre-configured settings that work for most users."
+        ),
+        SetupPage(
+            title: "Privacy Focused",
+            description: "Your data stays on your device",
+            imageName: "lock.shield.fill",
+            details: "StosVPN creates a local tunnel that doesn't route traffic through external servers. All network traffic remains on your device, ensuring your privacy and security."
+        )
+    ]
+    
+    var body: some View {
+        NavigationStack {
+            VStack {
+                TabView(selection: $currentPage) {
+                    ForEach(0..<pages.count, id: \.self) { index in
+                        SetupPageView(page: pages[index])
+                            .tag(index)
+                    }
+                }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                
+                Spacer()
+                
+                if currentPage == pages.count - 1 {
+                    Button {
+                        hasNotCompletedSetup = false
+                        dismiss()
+                    } label: {
+                        Text("Get Started")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .frame(height: 50)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.blue]),
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .padding(.horizontal)
+                    }
+                    .padding(.bottom)
+                } else {
+                    Button {
+                        withAnimation {
+                            currentPage += 1
+                        }
+                    } label: {
+                        Text("Next")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .frame(height: 50)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.blue]),
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .padding(.horizontal)
+                    }
+                    .padding(.bottom)
+                }
+            }
+            .navigationTitle("Setup")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Skip") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct SetupPage {
+    let title: String
+    let description: String
+    let imageName: String
+    let details: String
+}
+
+struct SetupPageView: View {
+    let page: SetupPage
+    
+    var body: some View {
+        VStack(spacing: 30) {
+            Image(systemName: page.imageName)
+                .font(.system(size: 80))
+                .foregroundColor(.blue)
+                .padding(.top, 50)
+            
+            Text(page.title)
+                .font(.title)
+                .fontWeight(.bold)
+                .multilineTextAlignment(.center)
+            
+            Text(page.description)
+                .font(.headline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            
+            ScrollView {
+                Text(page.details)
+                    .font(.body)
+                    .multilineTextAlignment(.leading)
+                    .padding(.horizontal)
+            }
+            
+            Spacer()
+        }
+        .padding()
     }
 }
 
